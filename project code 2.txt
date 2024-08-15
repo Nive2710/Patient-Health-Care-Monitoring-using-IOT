@@ -1,0 +1,136 @@
+//coding 2
+WebServer server(80);
+
+void onBeatDetected()
+
+{
+
+Serial.println("Beat!");
+
+}
+
+void setup() {
+
+Serial.begin(115200);
+
+pinMode(19, OUTPUT);
+
+delay(100);
+
+Serial.println("Connecting to ");
+
+Serial.println(ssid);
+
+//connect to your local wi-fi network
+
+WiFi.begin(ssid, password);
+
+//check wi-fi is connected to wi-fi network
+
+while (WiFi.status() != WL_CONNECTED) {
+
+delay(1000);
+
+Serial.print(".");
+
+}
+
+Serial.println("");
+
+Serial.println("WiFi connected..!");
+server.begin();
+
+Serial.println("HTTP server started");
+
+Serial.print("Initializing pulse oximeter..");
+
+if (!pox.begin()) {
+
+Serial.println("FAILED");
+
+for (;;);
+
+} else {
+
+Serial.println("SUCCESS");
+
+pox.setOnBeatDetectedCallback(onBeatDetected);
+
+}
+
+pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
+
+dht.begin();
+
+// Register a callback for the beat detection
+
+}
+
+void loop() {
+
+server.handleClient();
+
+pox.update();
+
+sensors.requestTemperatures();
+
+temperature = dht.readHumidity();
+
+humidity = dht.readTemperature();
+
+// bodytemperature = sensors.getTempCByIndex(0);
+
+if (isnan(temperature) || isnan(humidity)) {
+
+Serial.println(F("Failed to read from DHT sensor!"));
+
+return;
+
+}
+
+BPM = pox.getHeartRate();
+
+SpO2 = pox.getSpO2();
+
+bodytemperature = sensors.getTempCByIndex(0);
+
+if (millis() - tsLastReport > REPORTING_PERIOD_MS)
+
+{
+
+Serial.print("Room Temperature: ");
+
+Serial.print(temperature);
+
+Serial.println("°C");
+
+Serial.print("Room Humidity: ");
+
+Serial.print(humidity);
+
+Serial.println("%");
+
+Serial.print("BPM: ");
+
+Serial.println(BPM);
+
+Serial.print("SpO2: ");
+
+Serial.print(SpO2);
+
+Serial.println("%");
+
+Serial.print("Body Temperature: ");
+Serial.print(bodytemperature);
+
+Serial.println("°C");
+
+Serial.println("*********************************");
+
+Serial.println();
+
+tsLastReport = millis();
+
+}
+
+}

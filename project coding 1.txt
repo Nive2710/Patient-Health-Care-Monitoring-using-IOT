@@ -1,0 +1,42 @@
+//coding 1
+
+#include <WiFi.h>
+
+#include <WebServer.h>
+
+#include <Wire.h>
+
+#include "MAX30100_PulseOximeter.h"
+
+#include <OneWire.h>
+
+#include <DallasTemperature.h>
+
+#include <DHT.h>
+
+#define DHT11_PIN 18
+
+#define DHT11_TYPE DHT11
+
+#define DS18B20 5
+
+#define REPORTING_PERIOD_MS 1000
+
+float temperature, humidity, BPM, SpO2, bodytemperature;
+
+/*Put your SSID & Password*/
+
+const char* ssid = "iPhone"; // Enter SSID here
+
+const char* password = "22112019"; //Enter Password here
+
+DHT dht(DHT11_PIN, DHT11_TYPE);
+
+PulseOximeter pox;
+
+uint32_t tsLastReport = 0;
+
+OneWire oneWire(DS18B20);
+
+DallasTemperature sensors(&oneWire);
+
